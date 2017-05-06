@@ -46,18 +46,21 @@ public class Sprint01_Triple_Extractor_Beta {
 	
 	private static String rdf_seq_kopf = "<rdf:type rdf:resource='http://www.w3.org/1999/02/22-rdf-syntax-ns#Seq'/>";
 	
+	static Model model = null;
+	
 	
 	public static void main(String[] args) throws IOException, SAXException, TikaException {
 		
 		//String inputFile = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/Docx/Benutzeranleitung DFAT.docx";
-		String inputFileStylekurz = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/1_Arbeitsdaten/Stile-Test-Dokument.docx";
+		//String inputFileStylekurz = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/1_Arbeitsdaten/Stile-Test-Dokument.docx";
+		model = ModelFactory.createDefaultModel();
 		
-		//String inputFile = fileChooser();
+		String inputFile = fileChooser();
 		
-		//Metadata md = getMetaDates(inputFile);
-		//processMetaDates(md, inputFile);
+		Metadata md = getMetaDates(inputFile);
+		processMetaDates(md, inputFile);
 		
-		JADX_Analizer(inputFileStylekurz);
+		JADX_Analizer(inputFile);
 		
 		//jenaReadWrite();
 	}
@@ -119,7 +122,8 @@ public class Sprint01_Triple_Extractor_Beta {
 						
 
 						
-				        while (counter< docElement.getElementsByTagName("w:p").getLength()) {
+				        while ((counter< docElement.getElementsByTagName("w:p").getLength())&&(counter<2000)) {
+				        	// Zahl zur Vermeidung bzw zum Auffinden der 'Code-Injection' im Testdokument
 				        	tElement = (Element) docElement.getElementsByTagName("w:p").item(counter);
 				        	tripleString ="";
 				        	// Text-Content = alles ausserhalb von <tags> ausgeben
@@ -208,6 +212,7 @@ public class Sprint01_Triple_Extractor_Beta {
 	      // RDF schliessen
 	      test = test + "</rdf:Description></rdf:RDF>";
 	      stringZwischenSpeicherer (test);
+	      jenaReadWrite();
 	}
 	
 	
@@ -217,10 +222,14 @@ public class Sprint01_Triple_Extractor_Beta {
 		// liest existierendes RDF-Model ein
 		// und gibt es auf die Standardausgabe aus
 		
-		Model model = ModelFactory.createDefaultModel();
+		//Model model = ModelFactory.createDefaultModel();
+		// aktuell hier auskommentiert und einmalig in der Main geoeffnet.
+		// dadurch ist mehrmaliges Einlesen unterschiedlicher RDF-Files in ein Model moeglich
+		// nach jedem Einlesen erfolgt eine Ausgabe des kompletten, akttuellen Stand des Modells
 
 		//String inputFileName = "bin/KMB-RDF-Beta-1.rdf"; // ist ein File im RDF-XML-Format
 
+		// ist die Arbeitsdatei in die die verschiedenen Analysatoren ihre jeweiligen RDFs speichern
 		String inputFileName = "Sprint.xml";
 		
         InputStream in = FileManager.get().open( inputFileName );
