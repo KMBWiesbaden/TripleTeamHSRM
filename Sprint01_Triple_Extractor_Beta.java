@@ -52,7 +52,7 @@ public class Sprint01_Triple_Extractor_Beta {
 	public static void main(String[] args) throws IOException, SAXException, TikaException {
 		
 		//String inputFile = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/Docx/Benutzeranleitung DFAT.docx";
-		//String inputFileStylekurz = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/1_Arbeitsdaten/Stile-Test-Dokument.docx";
+		//String inputFile = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/1_Arbeitsdaten/Stile-Test-Dokument.docx";
 		model = ModelFactory.createDefaultModel();
 		
 		String inputFile = fileChooser();
@@ -139,6 +139,13 @@ public class Sprint01_Triple_Extractor_Beta {
 				        	if (tElement.getElementsByTagName("w:pStyle").getLength()>0){
 								Element pElement = (Element) tElement.getElementsByTagName("w:pStyle").item(0);
 								System.out.println("\t TRIPLE: Element " + counter + " hat Style-Wert: "+ pElement.getAttribute("w:val"));
+								// rdf-Triple zu Style mit Descriptor pro Paragraph erzeugen
+				        		//triple aufmachen pro Paragraph
+				        		tripleString = tripleString + rdf_descriptor_Start + in + "#Paragraph_"+ counter + rdf_kopf_Schluss; 
+				        		// triple inhalt rein
+				        		tripleString = tripleString + "<hsrmtt:style>"+pElement.getAttribute("w:val")+"</hsrmtt:style>";
+				        		// descriptor und rdf schliesen
+				        		tripleString = tripleString + rdf_descriptor_ende;
 							}
 				        	rdf = rdf + tripleString;
 //				        	stringZwischenSpeicherer (tripleString);
