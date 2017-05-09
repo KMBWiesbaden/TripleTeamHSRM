@@ -52,15 +52,17 @@ public class Sprint01_Triple_Extractor_Beta {
 	public static void main(String[] args) throws IOException, SAXException, TikaException {
 		
 		//String inputFile = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/Docx/Benutzeranleitung DFAT.docx";
-		//String inputFile = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/1_Arbeitsdaten/Stile-Test-Dokument.docx";
+		String inputFile = "C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/1_Arbeitsdaten/Stile-Test-Dokument.docx";
 		model = ModelFactory.createDefaultModel();
 		
-		String inputFile = fileChooser();
+		// String inputFile = fileChooser();
 		
 		Metadata md = getMetaDates(inputFile);
 		processMetaDates(md, inputFile);
 		
 		JADX_Analizer(inputFile);
+		
+		sourceTypeIdentifierRDF(inputFile);
 		
 		//jenaReadWrite();
 	}
@@ -98,7 +100,9 @@ public class Sprint01_Triple_Extractor_Beta {
 			            documentXMLIS = docxFile.getInputStream(documentXML);
 						document = builder.parse(documentXMLIS);
 						
-						System.out.println("****** Get doc ******* \n");
+						System.out.println("****** Analyse des Dokuments anhand XML-Baum mittels JADX Ausgabe als Konsolnen-Text ******* \n");
+						System.out.println("****** Parallel Erzeugung der RDF-Beschreibungen der Ergebnisse ******* \n");
+						
 						rdf = rdf + rdf_kopf; 
 						Element docElement = document.getDocumentElement();
 						
@@ -118,9 +122,6 @@ public class Sprint01_Triple_Extractor_Beta {
 						String tripleString ="";
 						// Analyse nach w:p Elementen = Paragraph
 						Element tElement = (Element) docElement.getElementsByTagName("w:p").item(counter);
-						
-						
-
 						
 				        while ((counter< docElement.getElementsByTagName("w:p").getLength())&&(counter<2000)) {
 				        	// Zahl zur Vermeidung bzw zum Auffinden der 'Code-Injection' im Testdokument
@@ -174,7 +175,6 @@ public class Sprint01_Triple_Extractor_Beta {
 		}  
 	  
 	
-	
 	public static Metadata getMetaDates(String in) throws IOException, SAXException, TikaException {
 
 		  
@@ -194,34 +194,60 @@ public class Sprint01_Triple_Extractor_Beta {
 	
 	public static void processMetaDates(Metadata md, String in) throws IOException, SAXException, TikaException {
 
-		 // RDF aufmachen und Basisangaben
-		  String test ="<?xml version='1.0' encoding='UTF-8'?> <rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:rdfs='http://www.w3.org/2000/01/rdf-schema#' xmlns:hsrmtt='http://www.hsrm.de/somewhere/TT/'>   <rdf:Description rdf:about='file:///"+in+"'>";
-		      
+		 // RDF aufmachen und Basisangaben mit vordefinierten Tags sowie File-Ressource
+		  //String metaDates ="<?xml version='1.0' encoding='UTF-8'?> <rdf:RDF xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#' xmlns:dc='http://purl.org/dc/elements/1.1/' xmlns:rdfs='http://www.w3.org/2000/01/rdf-schema#' xmlns:hsrmtt='http://www.hsrm.de/somewhere/TT/'>   <rdf:Description rdf:about='file:///"+in+"'>";
+		  String metaDates =rdf_kopf + rdf_descriptor_Start+in+rdf_kopf_Schluss;
+			      
 		  System.out.println("Metadata of the document:");
 	      String[] metadataNames = md.names();
+	  
+	      System.out.println("****** Analyse des Dokuments: Metadaten mittels Tika Ausgabe als Konsolnen-Text ******* \n");
+	      System.out.println("****** Parallel Erzeugung der RDF-Beschreibungen der Ergebnisse ******* \n");		
 	      
 	      for(String name : metadataNames) {
 	         
 	         switch(name){
 	         case "dc:creator":
 	             System.out.println("Creator-Triple: " + name + ": " + md.get(name));
-	             test = test +"<dc:creator>"+md.get(name)+"</dc:creator>";
+	             metaDates = metaDates +"<dc:creator>"+md.get(name)+"</dc:creator>";
 	             break;
 	         case "Last-Author":
 	             System.out.println("Contributer-Triple: " + name + ": " + md.get(name));
-	             test = test +"<dc:contributor>"+md.get(name)+"</dc:contributor>";
+	             metaDates = metaDates +"<dc:contributor>"+md.get(name)+"</dc:contributor>";
 	             break;
 	         default:
 	        	 System.out.println("\t\t "+ name + ": " + md.get(name));
 	         } 
 	      }
 	      
-	      // RDF schliessen
-	      test = test + "</rdf:Description></rdf:RDF>";
-	      stringZwischenSpeicherer (test);
+	      // RDF schliessen mit vordefinierten Tags
+	      //metaDates = metaDates + "</rdf:Description></rdf:RDF>";
+	      metaDates = metaDates + rdf_descriptor_ende + rdf_gesamt_ende;
+	      
+	      stringZwischenSpeicherer (metaDates);
 	      jenaReadWrite();
 	}
 	
+
+// RDF-Triple erzeugen mit Benennung des Quell-Dokument-Types nach Namespace HSRM TT
+	
+	public static void sourceTypeIdentifierRDF(String in){
+
+		 // RDF aufmachen und Basisangaben mit vordefinierten Tags sowie File-Ressource
+		  String sourceType =rdf_kopf + rdf_descriptor_Start+in+rdf_kopf_Schluss;
+			      
+	      System.out.println("****** Erzeugung einer vordefinieten RDF-Beschreibungen Eingabe-Types (Word-Git-Jira) in RAF ns-HSRMTT ******* \n");		
+	      
+          sourceType = sourceType +"<hsrmtt:sourcetype>"+"Word-Document"+"</hsrmtt:sourcetype>";
+	          
+	      
+	      // RDF schliessen mit vordefinierten Tags
+	      sourceType = sourceType + rdf_descriptor_ende + rdf_gesamt_ende;
+	      
+	      stringZwischenSpeicherer (sourceType);
+	      jenaReadWrite();
+	}
+
 	
 
 	public static void jenaReadWrite() {
@@ -247,7 +273,7 @@ public class Sprint01_Triple_Extractor_Beta {
         // read the RDF/XML file
         model.read(in, "");
                     
-        System.out.println("****** Ausgabe eingelesenes RDF*******\n");
+        System.out.println("****** Ausgabe des in den Jena-Triple-Store eingelesenen Models als RDF aus dem Triple-Store *******\n");
         // write it to standard out
         model.write(System.out); 
         System.out.println("\n\n");
