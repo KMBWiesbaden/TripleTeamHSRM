@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rdf:RDF
+  xmlns:rdf='http://www.w3.org/1999/02/22-rdf-syntax-ns#'
+  xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+  xmlns:hsrmtt="http://www.hsrm.de/somewhere/TT/"
+   >
+
+  <rdf:Description rdf:about="file:///C:/Users/dr_be_000/Dropbox/KMB-Mini-KMB-Klaus/Informatik/WP/Quellmaterial/Docx/Fake-Doc.docx">
+	 <hsrmtt:analyzer>Sprint_02_Triple-Extractor_beta</hsrmtt:analyzer>
+	 <hsrmtt:supervisor>Bodo Igler</hsrmtt:supervisor>
+  </rdf:Description>
+
+
+</rdf:RDF>
